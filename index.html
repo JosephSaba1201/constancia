@@ -18,18 +18,18 @@
 :root{
   --bg:#EEF1F4; --surface:#FFFFFF; --ink:#16212E; --muted:#5C6B7A; --line:#D5DCE3;
   --accent:#23466E; --accent-ink:#FFFFFF;
-  --ok:#2F8A4E; --ok-soft:#D9F0E0; --no:#C2414B; --no-soft:#F8DCDE; --ex:#B7791F; --ex-soft:#FBEBCF; --empty:#E3E8ED;
+  --ok:#2F8A4E; --ok-soft:#D9F0E0; --no:#C2414B; --no-soft:#F8DCDE; --mid:#D9A21B; --ex:#8A96A3; --ex-soft:#FBEBCF; --empty:#E3E8ED;
   --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
   --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0F151C; --surface:#18212B; --ink:#E7EDF3; --muted:#93A3B3; --line:#2A3542;
   --accent:#8DB4E2; --accent-ink:#0F151C;
-  --ok:#5BC07C; --ok-soft:#1E3A28; --no:#EC7880; --no-soft:#43232A; --ex:#E5B259; --ex-soft:#43341A; --empty:#243040; color-scheme:dark}}
+  --ok:#5BC07C; --ok-soft:#1E3A28; --no:#EC7880; --no-soft:#43232A; --mid:#E5B83F; --ex:#6F7C8A; --ex-soft:#43341A; --empty:#243040; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0F151C; --surface:#18212B; --ink:#E7EDF3; --muted:#93A3B3; --line:#2A3542;
   --accent:#8DB4E2; --accent-ink:#0F151C;
-  --ok:#5BC07C; --ok-soft:#1E3A28; --no:#EC7880; --no-soft:#43232A; --ex:#E5B259; --ex-soft:#43341A; --empty:#243040; color-scheme:dark}
+  --ok:#5BC07C; --ok-soft:#1E3A28; --no:#EC7880; --no-soft:#43232A; --mid:#E5B83F; --ex:#6F7C8A; --ex-soft:#43341A; --empty:#243040; color-scheme:dark}
 *{box-sizing:border-box}
 html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg)}
 body{margin:0;-webkit-text-size-adjust:100%}
@@ -62,9 +62,10 @@ h2{font-size:19px;font-weight:600}
 .objrow{display:flex;align-items:center;gap:10px}
 .objname{flex:1;font-weight:600;min-width:0}
 .choices{display:flex;gap:6px}
-.ch{width:46px;height:42px;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--muted);font:700 18px var(--body);cursor:pointer;transition:background .12s,border-color .12s}
+.ch{width:42px;height:42px;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--muted);font:700 18px var(--body);cursor:pointer;transition:background .12s,border-color .12s}
 .ch[data-v="ok"].on{background:var(--ok);border-color:var(--ok);color:#fff}
 .ch[data-v="no"].on{background:var(--no);border-color:var(--no);color:#fff}
+.ch[data-v="medio"].on{background:var(--mid);border-color:var(--mid);color:#fff}
 .ch[data-v="E"].on{background:var(--ex);border-color:var(--ex);color:#fff}
 .ch:focus-visible,.iconbtn:focus-visible,.linkbtn:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .note{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--bg);color:var(--ink);font:inherit;font-size:14px}
@@ -78,7 +79,7 @@ h2{font-size:19px;font-weight:600}
 .grid .rl{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:6px;align-self:center}
 .grid .dn{font-size:9px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
 .cell{aspect-ratio:1;border-radius:3px;background:var(--empty);min-width:8px;border:0;padding:0;cursor:pointer}
-.cell.ok{background:var(--ok)} .cell.no{background:var(--no)} .cell.E{background:var(--ex)}
+.cell.ok{background:var(--ok)} .cell.no{background:var(--no)} .cell.E{background:var(--ex)} .cell.medio{background:var(--mid)}
 .cell.off{background:transparent;cursor:default}
 .cell.today{box-shadow:0 0 0 1.5px var(--ink)}
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:14px}
@@ -122,7 +123,7 @@ tr.total td{font-weight:700;border-bottom:none}
       <h1>Constancia</h1>
     </div>
     <div class="streak">
-      <div class="stat"><b id="streak">0</b><span>días seguidos completos</span></div>
+      <div class="stat"><b id="streak">0</b><span>días seguidos sin ✗</span></div>
       <div class="stat"><b id="monthPct">–</b><span>éxito este mes</span></div>
     </div>
   </header>
@@ -140,6 +141,7 @@ tr.total td{font-weight:700;border-bottom:none}
     <div class="legend">
       <span><i style="background:var(--ok)"></i>✓ Lo hice</span>
       <span><i style="background:var(--no)"></i>✗ No lo hice</span>
+      <span><i style="background:var(--mid)"></i>½ A medias (vale 50%)</span>
       <span><i style="background:var(--ex)"></i>E Excepción (no cuenta)</span>
     </div>
     <div class="status" id="status" aria-live="polite"></div>
@@ -153,10 +155,10 @@ tr.total td{font-weight:700;border-bottom:none}
     </div>
     <div class="gridwrap"><div class="grid" id="grid"></div></div>
     <table id="mtable" aria-label="Resultados del mes">
-      <thead><tr><th>Objetivo</th><th>✓</th><th>✗</th><th>E</th><th>% Éxito</th></tr></thead>
+      <thead><tr><th>Objetivo</th><th>✓</th><th>½</th><th>✗</th><th>E</th><th>% Éxito</th></tr></thead>
       <tbody></tbody>
     </table>
-    <p class="muted" style="margin:0">% de éxito = ✓ ÷ (✓ + ✗). Las excepciones y los días sin registrar no cuentan.</p>
+    <p class="muted" style="margin:0">% de éxito = (✓ + ½ × 0.5) ÷ (✓ + ½ + ✗). Las excepciones y los días sin registrar no cuentan.</p>
   </section>
 
   <section class="card" aria-labelledby="resTitle">
@@ -230,7 +232,7 @@ tr.total td{font-weight:700;border-bottom:none}
       const row = document.createElement("div"); row.className = "objrow";
       const name = document.createElement("div"); name.className = "objname"; name.textContent = o.nombre;
       const ch = document.createElement("div"); ch.className = "choices"; ch.setAttribute("role","group"); ch.setAttribute("aria-label", o.nombre);
-      [["ok","✓","Lo hice"],["no","✗","No lo hice"],["E","E","Excepción"]].forEach(([val,sym,lab]) => {
+      [["ok","✓","Lo hice"],["medio","½","A medias"],["no","✗","No lo hice"],["E","E","Excepción"]].forEach(([val,sym,lab]) => {
         const b = document.createElement("button");
         b.className = "ch" + (v===val ? " on" : ""); b.dataset.v = val; b.textContent = sym;
         b.setAttribute("aria-label", lab); b.setAttribute("aria-pressed", v===val ? "true":"false");
@@ -239,10 +241,10 @@ tr.total td{font-weight:700;border-bottom:none}
         ch.appendChild(b);
       });
       row.append(name, ch); wrap.appendChild(row);
-      if (v === "E" || v === "no" || rec.notas?.[o.id]) {
+      if (v === "E" || v === "no" || v === "medio" || rec.notas?.[o.id]) {
         const inp = document.createElement("input");
         inp.className = "note"; inp.id = `nota-${o.id}`;
-        inp.placeholder = v==="E" ? "¿Por qué fue excepción? (ej. me sentía mal)" : "Nota (opcional)";
+        inp.placeholder = v==="E" ? "¿Por qué fue excepción? (ej. me sentía mal)" : v==="medio" ? "¿Qué pasó? (ej. fumé solo una vez)" : "Nota (opcional)";
         inp.value = rec.notas?.[o.id] || ""; inp.disabled = !state.canWrite;
         inp.addEventListener("change", () => setNote(o.id, inp.value.trim()));
         wrap.appendChild(inp);
@@ -284,14 +286,14 @@ tr.total td{font-weight:700;border-bottom:none}
 
   // ---------- stats ----------
   function statsFor(prefix, objs){
-    const res = {}; objs.forEach(o => res[o.id] = {ok:0,no:0,E:0});
+    const res = {}; objs.forEach(o => res[o.id] = {ok:0,medio:0,no:0,E:0});
     Object.entries(state.dias).forEach(([k,r]) => {
       if (!k.startsWith(prefix)) return;
       objs.forEach(o => { const v = r.obj?.[o.id]; if (v && res[o.id][v] != null) res[o.id][v]++; });
     });
-    const tot = {ok:0,no:0,E:0};
-    objs.forEach(o => { tot.ok+=res[o.id].ok; tot.no+=res[o.id].no; tot.E+=res[o.id].E; });
-    const p = s => (s.ok+s.no) ? s.ok/(s.ok+s.no) : null;
+    const tot = {ok:0,medio:0,no:0,E:0};
+    objs.forEach(o => { tot.ok+=res[o.id].ok; tot.medio+=res[o.id].medio; tot.no+=res[o.id].no; tot.E+=res[o.id].E; });
+    const p = s => (s.ok+s.medio+s.no) ? (s.ok+0.5*s.medio)/(s.ok+s.medio+s.no) : null;
     return {res, tot, p};
   }
 
@@ -315,7 +317,7 @@ tr.total td{font-weight:700;border-bottom:none}
         const v = state.dias[k]?.obj?.[o.id];
         const off = k < START || k > tk;
         c.className = "cell" + (off ? " off" : "") + (v ? " "+v : "") + (k===tk ? " today":"");
-        c.setAttribute("aria-label", `${o.nombre}, ${d} de ${MESES[m-1]}: ${v==="ok"?"lo hice":v==="no"?"no lo hice":v==="E"?"excepción":"sin registrar"}`);
+        c.setAttribute("aria-label", `${o.nombre}, ${d} de ${MESES[m-1]}: ${v==="ok"?"lo hice":v==="medio"?"a medias":v==="no"?"no lo hice":v==="E"?"excepción":"sin registrar"}`);
         if (off) { c.disabled = true; c.tabIndex = -1; }
         else c.addEventListener("click", () => { state.day = k; renderDay(); document.getElementById("objList").scrollIntoView({behavior:"smooth", block:"center"}); });
         g.appendChild(c);
@@ -326,7 +328,7 @@ tr.total td{font-weight:700;border-bottom:none}
     const addRow = (name, s, cls) => {
       const tr = document.createElement("tr"); if (cls) tr.className = cls;
       const pr = p(s);
-      [name, s.ok, s.no, s.E].forEach(v => { const td=document.createElement("td"); td.textContent=v; tr.appendChild(td); });
+      [name, s.ok, s.medio, s.no, s.E].forEach(v => { const td=document.createElement("td"); td.textContent=v; tr.appendChild(td); });
       const td = document.createElement("td");
       td.innerHTML = `<span class="pct"><span class="pctbar"><span style="width:${pr==null?0:Math.round(pr*100)}%"></span></span><span>${pctTxt(pr)}</span></span>`;
       tr.appendChild(td); tb.appendChild(tr);
@@ -355,7 +357,7 @@ tr.total td{font-weight:700;border-bottom:none}
     $("monthPct").textContent = pctTxt(cur.p(cur.tot));
     // streak: consecutive days (ending today or yesterday) where every objective is ✓ or E and at least one ✓
     let k = todayKey(), n = 0;
-    const full = key => { const r = state.dias[key]; if (!r || !objs.length) return false; return objs.every(o => r.obj?.[o.id]==="ok" || r.obj?.[o.id]==="E") && objs.some(o => r.obj?.[o.id]==="ok"); };
+    const full = key => { const r = state.dias[key]; if (!r || !objs.length) return false; return objs.every(o => ["ok","medio","E"].includes(r.obj?.[o.id])) && objs.some(o => ["ok","medio"].includes(r.obj?.[o.id])); };
     if (!full(k)) k = addDays(k,-1);
     while (k >= START && full(k)) { n++; k = addDays(k,-1); }
     $("streak").textContent = n;
@@ -399,7 +401,7 @@ tr.total td{font-weight:700;border-bottom:none}
   // ---------- CSV ----------
   $("csvBtn").addEventListener("click", async () => {
     const objs = activeObjs();
-    const sym = v => v==="ok"?"✓":v==="no"?"✗":v==="E"?"E":"";
+    const sym = v => v==="ok"?"✓":v==="medio"?"½":v==="no"?"✗":v==="E"?"E":"";
     const esc = s => `"${String(s).replace(/"/g,'""')}"`;
     const lines = [["Fecha", ...objs.map(o=>o.nombre), "Notas"].map(esc).join(",")];
     Object.keys(state.dias).sort().forEach(k => {
